@@ -12,7 +12,7 @@ This tool bypasses event-log scanning entirely. Instead, it queries the staking 
 * Highlights Ready To End stakes that are fully matured, giving you a safe, 1-click button to claim your payout via MetaMask.
 
 How to Use (Live Website)
-1. Navigate to the live website.
+1. Navigate to the live website: https://tonyvahl.github.io/mfenix-unstake-tool/
 2. Click Connect Wallet to connect your MetaMask. Ensure you are on the Polygon Network.
 3. Click Scan for My Stakes.
 4. Review your stakes. For any stake that is matured, click Select and confirm the transaction in MetaMask to end the stake.
