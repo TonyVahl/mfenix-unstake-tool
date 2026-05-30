@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MFenix Polygon Unstaker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles to add a premium feel */
+        body {
+            background-color: #0f172a; /* Tailwind slate-900 */
+            color: #f8fafc; /* Tailwind slate-50 */
+            font-family: 'Inter', sans-serif;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7); /* slate-800 with opacity */
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+        .gradient-text {
+            background: linear-gradient(to right, #8b5cf6, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-6 sm:p-12">
+    <div class="max-w-3xl w-full">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-extrabold mb-4 gradient-text tracking-tight">MFenix Unstaker</h1>
+            <p class="text-slate-400 text-lg">Safely end your MFenix stakes directly on the Polygon network.</p>
+        </header>
+
+        <!-- Wallet Connection Section -->
+        <section class="glass-panel rounded-2xl p-6 sm:p-8 mb-8 flex flex-col items-center transition-all duration-300 hover:border-blue-500/30">
+            <div id="wallet-info" class="hidden w-full text-center mb-6">
+                <p class="text-sm text-slate-400 mb-1">Connected Wallet</p>
+                <p id="wallet-address" class="text-xl font-mono text-blue-400 bg-slate-900/50 py-2 px-4 rounded-lg inline-block break-all"></p>
+                <div class="mt-4 flex justify-center space-x-4 text-sm">
+                    <span id="network-status" class="px-3 py-1 rounded-full bg-green-500/20 text-green-400 border border-green-500/30">Polygon Network</span>
+                </div>
+            </div>
+            
+            <button id="connect-btn" class="bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 px-8 rounded-xl shadow-lg shadow-blue-500/30 transition-all duration-200 transform hover:scale-105 active:scale-95">
+                Connect MetaMask
+            </button>
+        </section>
+
+        <!-- Contract Details Section -->
+        <section class="glass-panel rounded-2xl p-6 sm:p-8 mb-8">
+            <h2 class="text-2xl font-bold mb-6 text-slate-200 flex items-center">
+                <svg class="w-6 h-6 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                Contract Configuration
+            </h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-400 mb-2">Fenix Staking Contract (Polygon)</label>
+                    <input type="text" id="contract-address" value="0xc3e8abfa04b0ec442c2a4d65699a40f7fced8055" class="w-full bg-slate-900/80 border border-slate-700 rounded-lg px-4 py-3 text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm" placeholder="0x...">
+                </div>
+            </div>
+        </section>
+
+        <!-- Fetch Stakes Section -->
+        <section class="glass-panel rounded-2xl p-6 sm:p-8 mb-8 opacity-50 pointer-events-none transition-opacity duration-300" id="stakes-section">
+            <h2 class="text-2xl font-bold mb-6 text-slate-200 flex items-center">
+                <svg class="w-6 h-6 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                Find Your Stakes
+            </h2>
+            <p class="text-slate-400 mb-4 text-sm">We can attempt to find your stakes by scanning the blockchain for your 'StakeStart' events.</p>
+            
+            <button id="fetch-stakes-btn" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 mb-6 flex justify-center items-center">
+                <span>Scan for My Stakes</span>
+            </button>
+
+            <div id="stakes-list" class="space-y-3 hidden">
+                <!-- Stakes will be injected here -->
+            </div>
+            
+            <div id="loading-stakes" class="hidden text-center py-4">
+                <p class="text-slate-400 animate-pulse">Scanning the Polygon blockchain... (this may take a minute)</p>
+            </div>
+        </section>
+
+        <!-- Manual End Stake Section -->
+        <section class="glass-panel rounded-2xl p-6 sm:p-8 opacity-50 pointer-events-none transition-opacity duration-300" id="action-section">
+            <h2 class="text-2xl font-bold mb-6 text-slate-200 flex items-center">
+                <svg class="w-6 h-6 mr-2 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                Execute End Stake
+            </h2>
+            
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-slate-400 mb-2">Stake ID</label>
+                <input type="number" id="stake-id" class="w-full bg-slate-900/80 border border-slate-700 rounded-lg px-4 py-3 text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-lg" placeholder="e.g. 123">
+                <p class="text-xs text-slate-500 mt-2">Enter the ID of the stake you wish to end.</p>
+            </div>
+
+            <button id="end-stake-btn" class="w-full bg-red-600/90 hover:bg-red-500 text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-red-500/20 transition-all duration-200 flex justify-center items-center">
+                End Stake Now
+            </button>
+            
+            <div id="tx-status" class="mt-6 hidden rounded-lg p-4 text-sm font-mono break-all">
+                <!-- Transaction status will be injected here -->
+            </div>
+        </section>
+        
+        <footer class="mt-12 text-center text-slate-600 text-sm">
+            <p>Ensure you are connected to the correct network and verifying transactions in your wallet.</p>
+        </footer>
+    </div>
+
+    <!-- Import Ethers.js v6 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+    <script src="app.js?v=3"></script>
+</body>
+</html>
